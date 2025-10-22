@@ -12,18 +12,18 @@ class DiskBenchmark:
         self.disk_info = self._get_disk_info()
         
     def _get_disk_info(self):
-        """Ottiene informazioni dettagliate sui dischi"""
+        """Get detailed disk information"""
         try:
             disk_info = {}
             
-            # Informazioni dischi fisici
+            # Physical disk information
             disk_usage = psutil.disk_usage('/')
             disk_info['total_gb'] = round(disk_usage.total / (1024**3), 2)
             disk_info['used_gb'] = round(disk_usage.used / (1024**3), 2)
             disk_info['free_gb'] = round(disk_usage.free / (1024**3), 2)
             disk_info['percentage_used'] = disk_usage.percent
             
-            # Informazioni dischi specifici
+            # Specific disk information
             disk_info['partitions'] = []
             for partition in psutil.disk_partitions():
                 try:
@@ -42,18 +42,18 @@ class DiskBenchmark:
             
             return disk_info
         except Exception as e:
-            print(f"Errore nel recupero informazioni disco: {e}")
+            print(f"Error getting disk information: {e}")
             return {}
     
     def _sequential_write_test(self, file_size_mb=100):
-        """Test scrittura sequenziale"""
-        print(f"Test scrittura sequenziale ({file_size_mb} MB)...")
+        """Test sequential write"""
+        print(f"Test sequential write ({file_size_mb} MB)...")
         
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
             temp_path = temp_file.name
         
         try:
-            # Genera dati casuali
+            # Generate random data
             data_size = file_size_mb * 1024 * 1024
             chunk_size = 1024 * 1024  # 1MB chunks
             data_chunk = os.urandom(chunk_size)
@@ -76,15 +76,15 @@ class DiskBenchmark:
                 os.unlink(temp_path)
     
     def _sequential_read_test(self, file_size_mb=100):
-        """Test lettura sequenziale"""
+        """Test sequential read"""
         print(f"Test lettura sequenziale ({file_size_mb} MB)...")
         
-        # Crea file temporaneo
+        # Create temporary file
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
             temp_path = temp_file.name
         
         try:
-            # Scrivi dati nel file
+            # Write data to file
             data_size = file_size_mb * 1024 * 1024
             chunk_size = 1024 * 1024
             data_chunk = os.urandom(chunk_size)
@@ -93,7 +93,7 @@ class DiskBenchmark:
                 for _ in range(data_size // chunk_size):
                     f.write(data_chunk)
             
-            # Test lettura
+            # Test read
             start_time = time.time()
             with open(temp_path, 'rb') as f:
                 while True:
@@ -114,14 +114,14 @@ class DiskBenchmark:
                 os.unlink(temp_path)
     
     def _random_access_test(self, file_size_mb=50):
-        """Test accesso casuale"""
-        print(f"Test accesso casuale ({file_size_mb} MB)...")
+        """Test random access"""
+        print(f"Test random access ({file_size_mb} MB)...")
         
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
             temp_path = temp_file.name
         
         try:
-            # Crea file con dati
+            # Create file with data
             data_size = file_size_mb * 1024 * 1024
             chunk_size = 1024  # 1KB chunks
             data_chunk = os.urandom(chunk_size)
@@ -130,13 +130,13 @@ class DiskBenchmark:
                 for _ in range(data_size // chunk_size):
                     f.write(data_chunk)
             
-            # Test accesso casuale
+            # Test random access
             num_operations = 1000
             start_time = time.time()
             
             with open(temp_path, 'rb') as f:
                 for _ in range(num_operations):
-                    # Posizione casuale
+                    # Random position
                     pos = random.randint(0, data_size - chunk_size)
                     f.seek(pos)
                     f.read(chunk_size)
@@ -154,14 +154,14 @@ class DiskBenchmark:
                 os.unlink(temp_path)
     
     def _small_file_test(self, num_files=1000, file_size_kb=1):
-        """Test file piccoli"""
-        print(f"Test file piccoli ({num_files} files da {file_size_kb} KB)...")
+        """Test small files"""
+        print(f"Test small files ({num_files} files of {file_size_kb} KB)...")
         
         temp_dir = tempfile.mkdtemp()
         file_paths = []
         
         try:
-            # Crea file piccoli
+            # Create small files
             start_time = time.time()
             for i in range(num_files):
                 file_path = os.path.join(temp_dir, f"test_file_{i}.tmp")
@@ -170,14 +170,14 @@ class DiskBenchmark:
                 file_paths.append(file_path)
             create_time = time.time() - start_time
             
-            # Leggi file piccoli
+            # Read small files
             start_time = time.time()
             for file_path in file_paths:
                 with open(file_path, 'rb') as f:
                     f.read()
             read_time = time.time() - start_time
             
-            # Cancella file piccoli
+            # Delete small files
             start_time = time.time()
             for file_path in file_paths:
                 os.unlink(file_path)
@@ -191,31 +191,31 @@ class DiskBenchmark:
                 'files_per_second': num_files / create_time
             }
         finally:
-            # Pulisci directory temporanea
+            # Clean up temporary directory
             try:
                 os.rmdir(temp_dir)
             except:
                 pass
     
     def _concurrent_io_test(self, num_threads=4, file_size_mb=25):
-        """Test I/O concorrente"""
-        print(f"Test I/O concorrente ({num_threads} thread, {file_size_mb} MB per thread)...")
+        """Test concurrent I/O"""
+        print(f"Test concurrent I/O ({num_threads} thread, {file_size_mb} MB per thread)...")
         
         def worker_thread(thread_id):
-            """Worker thread per test concorrente"""
+            """Worker thread for concurrent test"""
             temp_path = f"temp_concurrent_{thread_id}.tmp"
             data_size = file_size_mb * 1024 * 1024
             chunk_size = 1024 * 1024
             data_chunk = os.urandom(chunk_size)
             
-            # Scrittura
+            # Write
             write_start = time.time()
             with open(temp_path, 'wb') as f:
                 for _ in range(data_size // chunk_size):
                     f.write(data_chunk)
             write_time = time.time() - write_start
             
-            # Lettura
+            # Read
             read_start = time.time()
             with open(temp_path, 'rb') as f:
                 while True:
@@ -224,7 +224,7 @@ class DiskBenchmark:
                         break
             read_time = time.time() - read_start
             
-            # Pulisci
+            # Clean up
             os.unlink(temp_path)
             
             return {
@@ -240,7 +240,7 @@ class DiskBenchmark:
             results = [future.result() for future in futures]
         total_time = time.time() - start_time
         
-        # Calcola statistiche aggregate
+        # Calculate aggregate statistics
         total_write_speed = sum(r['write_speed_mbps'] for r in results)
         total_read_speed = sum(r['read_speed_mbps'] for r in results)
         
@@ -254,30 +254,30 @@ class DiskBenchmark:
         }
     
     def run_complete_benchmark(self):
-        """Esegue benchmark completo del disco"""
+        """Run complete disk benchmark"""
         print("=" * 60)
         print("           COMPLETE DISK BENCHMARK")
         print("=" * 60)
         
-        # Mostra informazioni sistema
+        # Display system information
         self._display_disk_info()
         
         print("\n" + "=" * 60)
         print("           START DISK PERFORMANCE TEST")
         print("=" * 60)
         
-        # Esegui tutti i test
+        # Run all tests
         self.results['sequential_write'] = self._sequential_write_test(100)
         self.results['sequential_read'] = self._sequential_read_test(100)
         self.results['random_access'] = self._random_access_test(50)
         self.results['small_files'] = self._small_file_test(500, 1)
         self.results['concurrent_io'] = self._concurrent_io_test(4, 25)
         
-        # Mostra risultati
+        # Display results
         self._display_results()
     
     def _display_disk_info(self):
-        """Mostra informazioni disco"""
+        """Display disk information"""
         print("\n💾 DISK INFORMATION:")
         print("-" * 40)
         print(f"📊 Total Space: {self.disk_info.get('total_gb', 'N/A')} GB")
@@ -293,30 +293,30 @@ class DiskBenchmark:
             print(f"      Used: {partition['used_gb']} GB ({partition['percentage_used']}%)")
     
     def _display_results(self):
-        """Mostra risultati benchmark"""
+        """Display benchmark results"""
         print("\n📊 DISK BENCHMARK RESULTS:")
         print("-" * 50)
         
-        # Risultati scrittura sequenziale
+        # Sequential write results
         seq_write = self.results['sequential_write']
         print(f"📝 Sequential Write:")
         print(f"   ⏱️  Time: {seq_write['write_time']:.2f} seconds")
         print(f"   🚀 Speed: {seq_write['write_speed_mbps']:.2f} MB/s")
         
-        # Risultati lettura sequenziale
+        # Sequential read results
         seq_read = self.results['sequential_read']
         print(f"\n📖 Sequential Read:")
         print(f"   ⏱️  Time: {seq_read['read_time']:.2f} seconds")
         print(f"   🚀 Speed: {seq_read['read_speed_mbps']:.2f} MB/s")
         
-        # Risultati accesso casuale
+        # Random access results
         random_access = self.results['random_access']
         print(f"\n🎲 Random Access:")
         print(f"   ⏱️  Time: {random_access['access_time']:.2f} seconds")
         print(f"   🔄 Operations: {random_access['operations']}")
         print(f"   ⚡ Ops/sec: {random_access['ops_per_second']:.2f}")
         
-        # Risultati file piccoli
+        # Small files results
         small_files = self.results['small_files']
         print(f"\n📄 Small Files:")
         print(f"   📁 Files: {small_files['files_created']}")
@@ -325,7 +325,7 @@ class DiskBenchmark:
         print(f"   ⏱️  Delete Time: {small_files['delete_time']:.2f} seconds")
         print(f"   ⚡ Files/sec: {small_files['files_per_second']:.2f}")
         
-        # Risultati I/O concorrente
+        # Concurrent I/O results
         concurrent = self.results['concurrent_io']
         print(f"\n🧵 Concurrent I/O:")
         print(f"   🧵 Threads: {concurrent['threads_used']}")

@@ -112,7 +112,7 @@ class BenchmarkSystem:
             
             if choice == '0':
                 print("\n👋 Thank you for using SyS-BenchMark!")
-                print("🔗 For support and updates: https://github.com/your-repo")
+                print("🔗 For support and updates: https://github.com/sys-albaa")
                 break
             
             elif choice == '5':

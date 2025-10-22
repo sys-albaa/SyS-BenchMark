@@ -12,7 +12,7 @@ class RAMBenchmark:
         self.memory_info = self._get_memory_info()
         
     def _get_memory_info(self):
-        """Ottiene informazioni dettagliate sulla memoria"""
+        """Get detailed memory information"""
         try:
             memory = psutil.virtual_memory()
             swap = psutil.swap_memory()
@@ -26,28 +26,28 @@ class RAMBenchmark:
                 'swap_percentage': swap.percent
             }
         except Exception as e:
-            print(f"Errore nel recupero informazioni memoria: {e}")
+            print(f"Error getting memory information: {e}")
             return {}
     
     def _memory_allocation_test(self, size_mb=100):
-        """Test di allocazione memoria"""
+        """Test memory allocation"""
         print(f"Test allocazione memoria ({size_mb} MB)...")
         start_time = time.time()
         
-        # Alloca blocchi di memoria
+        # Allocate memory blocks
         data_blocks = []
-        block_size = size_mb * 1024 * 1024 // 10  # Dividi in 10 blocchi
+        block_size = size_mb * 1024 * 1024 // 10  # Divide into 10 blocks
         
         for i in range(10):
             block = bytearray(block_size)
-            # Riempi con dati casuali
+            # Fill with random data
             for j in range(0, len(block), 1024):
                 block[j:j+1024] = os.urandom(min(1024, len(block)-j))
             data_blocks.append(block)
         
         allocation_time = time.time() - start_time
         
-        # Test di accesso casuale
+        # Test random access
         access_start = time.time()
         total_sum = 0
         for _ in range(1000):
@@ -64,27 +64,27 @@ class RAMBenchmark:
         }
     
     def _memory_bandwidth_test(self, size_mb=200):
-        """Test bandwidth memoria"""
+        """Test memory bandwidth"""
         print(f"Test bandwidth memoria ({size_mb} MB)...")
         
-        # Alloca memoria
+        # Allocate memory
         data_size = size_mb * 1024 * 1024
         data = bytearray(data_size)
         
-        # Test scrittura sequenziale
+        # Test sequential write
         write_start = time.time()
         for i in range(0, len(data), 1024):
             data[i:i+1024] = os.urandom(min(1024, len(data)-i))
         write_time = time.time() - write_start
         
-        # Test lettura sequenziale
+        # Test sequential read
         read_start = time.time()
         total = 0
         for i in range(0, len(data), 1024):
             total += sum(data[i:i+1024])
         read_time = time.time() - read_start
         
-        # Test accesso casuale
+        # Test random access
         random_start = time.time()
         for _ in range(10000):
             idx = random.randint(0, len(data)-1)
@@ -101,34 +101,34 @@ class RAMBenchmark:
         }
     
     def _memory_stress_test(self, duration=10):
-        """Test di stress memoria"""
-        print(f"Test stress memoria ({duration} secondi)...")
+        """Test memory stress"""
+        print(f"Test stress memory ({duration} seconds)...")
         
         def stress_worker():
-            """Worker per stress test"""
+            """Worker for stress test"""
             start_time = time.time()
             operations = 0
             data_blocks = []
             
             while time.time() - start_time < duration:
-                # Alloca blocchi di memoria
+                # Allocate memory blocks
                 block_size = random.randint(1024*1024, 10*1024*1024)  # 1-10 MB
                 block = bytearray(block_size)
                 
-                # Riempi con dati
+                # Fill with data
                 for i in range(0, len(block), 1024):
                     block[i:i+1024] = os.urandom(min(1024, len(block)-i))
                 
                 data_blocks.append(block)
                 operations += 1
                 
-                # Pulisci alcuni blocchi per evitare OOM
+                # Clean up some blocks to avoid OOM
                 if len(data_blocks) > 50:
-                    data_blocks = data_blocks[-25:]  # Mantieni solo gli ultimi 25
+                    data_blocks = data_blocks[-25:]  # Keep only the last 25
             
             return operations
         
-        # Esegui stress test con threading
+        # Run stress test with threading
         num_threads = min(4, psutil.cpu_count())
         start_time = time.time()
         
@@ -147,25 +147,25 @@ class RAMBenchmark:
         }
     
     def _memory_latency_test(self):
-        """Test latenza memoria"""
-        print("Test latenza memoria...")
+        """Test memory latency"""
+        print("Test memory latency...")
         
-        # Test con diverse dimensioni di array
+        # Test with different array sizes
         sizes = [1024, 10240, 102400, 1024000]  # 1KB, 10KB, 100KB, 1MB
         results = {}
         
         for size in sizes:
-            # Alloca array
+            # Allocate array
             data = [random.randint(0, 255) for _ in range(size)]
             
-            # Test accesso sequenziale
+            # Test sequential access
             start_time = time.time()
             for _ in range(1000):
-                for i in range(0, size, 10):  # Ogni 10 elementi
+                for i in range(0, size, 10):  # Every 10 elements
                     _ = data[i]
             seq_time = time.time() - start_time
             
-            # Test accesso casuale
+            # Test random access
             start_time = time.time()
             for _ in range(1000):
                 idx = random.randint(0, size-1)
@@ -182,29 +182,29 @@ class RAMBenchmark:
         return results
     
     def run_complete_benchmark(self):
-        """Esegue benchmark completo della memoria"""
+        """Run complete memory benchmark"""
         print("=" * 60)
         print("           COMPLETE RAM BENCHMARK")
         print("=" * 60)
         
-        # Mostra informazioni sistema
+        # Display system information
         self._display_memory_info()
         
         print("\n" + "=" * 60)
         print("           START MEMORY PERFORMANCE TEST")
         print("=" * 60)
         
-        # Esegui tutti i test
+        # Run all tests
         self.results['allocation'] = self._memory_allocation_test(100)
         self.results['bandwidth'] = self._memory_bandwidth_test(200)
         self.results['stress'] = self._memory_stress_test(5)
         self.results['latency'] = self._memory_latency_test()
         
-        # Mostra risultati
+        # Display results
         self._display_results()
     
     def _display_memory_info(self):
-        """Mostra informazioni memoria"""
+        """Display memory information"""
         print("\n💾 MEMORY INFORMATION:")
         print("-" * 40)
         print(f"📊 Total RAM: {self.memory_info.get('total_gb', 'N/A')} GB")
@@ -216,25 +216,25 @@ class RAMBenchmark:
         print(f"💿 Swap Usage: {self.memory_info.get('swap_percentage', 'N/A')}%")
     
     def _display_results(self):
-        """Mostra risultati benchmark"""
+        """Display benchmark results"""
         print("\n📊 RAM BENCHMARK RESULTS:")
         print("-" * 50)
         
-        # Risultati allocazione
+        # Allocation results
         alloc = self.results['allocation']
         print(f"🔧 Memory Allocation:")
         print(f"   ⏱️  Allocation Time: {alloc['allocation_time']:.3f} seconds")
         print(f"   ⏱️  Access Time: {alloc['access_time']:.3f} seconds")
         print(f"   📊 Allocated: {alloc['total_allocated_mb']} MB")
         
-        # Risultati bandwidth
+        # Bandwidth results
         bw = self.results['bandwidth']
         print(f"\n🚀 Memory Bandwidth:")
         print(f"   📝 Write Speed: {bw['write_bandwidth_mbps']:.2f} MB/s")
         print(f"   📖 Read Speed: {bw['read_bandwidth_mbps']:.2f} MB/s")
         print(f"   🎲 Random Access: {bw['random_access_ops_per_sec']:.0f} ops/sec")
         
-        # Risultati stress test
+        # Stress test results
         stress = self.results['stress']
         print(f"\n💪 Memory Stress Test:")
         print(f"   ⏱️  Duration: {stress['duration']:.2f} seconds")
@@ -242,7 +242,7 @@ class RAMBenchmark:
         print(f"   ⚡ Ops/sec: {stress['ops_per_second']:.2f}")
         print(f"   🧵 Threads: {stress['threads_used']}")
         
-        # Risultati latenza
+        # Latency results
         latency = self.results['latency']
         print(f"\n⏱️  Memory Latency:")
         for size, result in latency.items():

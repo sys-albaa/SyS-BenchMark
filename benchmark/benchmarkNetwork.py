@@ -13,11 +13,11 @@ class NetworkBenchmark:
         self.network_info = self._get_network_info()
         
     def _get_network_info(self):
-        """Ottiene informazioni dettagliate sulla rete"""
+        """Get detailed network information"""
         try:
             network_info = {}
             
-            # Informazioni interfacce di rete
+            # Network interface information
             network_info['interfaces'] = []
             for interface, addrs in psutil.net_if_addrs().items():
                 interface_info = {
@@ -33,7 +33,7 @@ class NetworkBenchmark:
                     })
                 network_info['interfaces'].append(interface_info)
             
-            # Statistiche di rete
+            # Network statistics
             net_io = psutil.net_io_counters()
             network_info['stats'] = {
                 'bytes_sent': net_io.bytes_sent,
@@ -48,18 +48,18 @@ class NetworkBenchmark:
             
             return network_info
         except Exception as e:
-            print(f"Errore nel recupero informazioni rete: {e}")
+            print(f"Error getting network information: {e}")
             return {}
     
     def _ping_test(self, host="8.8.8.8", count=10):
         """Test ping"""
-        print(f"Test ping verso {host} ({count} pacchetti)...")
+        print(f"Test ping to {host} ({count} packets)...")
         
         try:
             import subprocess
             import platform
             
-            # Comando ping dipendente dal sistema operativo
+            # Ping command depends on operating system
             if platform.system().lower() == "windows":
                 cmd = ["ping", "-n", str(count), host]
             else:
@@ -70,11 +70,11 @@ class NetworkBenchmark:
             end_time = time.time()
             
             if result.returncode == 0:
-                # Estrai statistiche dal output
+                # Extract statistics from output
                 output = result.stdout
                 lines = output.split('\n')
                 
-                # Cerca righe con statistiche
+                # Search lines with statistics
                 stats_line = None
                 for line in lines:
                     if 'time=' in line or 'time<' in line:
@@ -82,7 +82,7 @@ class NetworkBenchmark:
                         break
                 
                 if stats_line:
-                    # Estrai tempo di risposta (semplificato)
+                    # Extract response time (simplified)
                     times = []
                     for line in lines:
                         if 'time=' in line:
@@ -127,7 +127,7 @@ class NetworkBenchmark:
             }
     
     def _download_speed_test(self, url="http://speedtest.ftp.otenet.gr/files/test1Mb.db", timeout=30):
-        """Test velocità download"""
+        """Test download speed"""
         print(f"Test velocità download...")
         
         try:
@@ -139,7 +139,7 @@ class NetworkBenchmark:
                 # Calcola velocità
                 content_length = int(response.headers.get('content-length', 0))
                 if content_length == 0:
-                    # Se non abbiamo content-length, leggiamo tutto
+                    # If we don't have content-length, read everything
                     data = response.content
                     content_length = len(data)
                 
@@ -169,7 +169,7 @@ class NetworkBenchmark:
             }
     
     def _connection_test(self, host="google.com", port=80, timeout=10):
-        """Test connessione TCP"""
+        """Test TCP connection"""
         print(f"Test connessione TCP {host}:{port}...")
         
         try:
@@ -197,11 +197,11 @@ class NetworkBenchmark:
             }
     
     def _dns_resolution_test(self, domains=None):
-        """Test risoluzione DNS"""
+        """Test DNS resolution"""
         if domains is None:
             domains = ["google.com", "github.com", "stackoverflow.com", "reddit.com", "wikipedia.org"]
         
-        print(f"Test risoluzione DNS ({len(domains)} domini)...")
+        print(f"Test DNS resolution ({len(domains)} domains)...")
         
         results = []
         for domain in domains:
@@ -225,7 +225,7 @@ class NetworkBenchmark:
                     'error': str(e)
                 })
         
-        # Calcola statistiche
+        # Calculate statistics
         successful = [r for r in results if r['success']]
         if successful:
             avg_time = statistics.mean([r['time_seconds'] for r in successful])
@@ -245,10 +245,10 @@ class NetworkBenchmark:
         }
     
     def _bandwidth_test(self, test_size_mb=10):
-        """Test bandwidth locale"""
+        """Test local bandwidth"""
         print(f"Test bandwidth locale ({test_size_mb} MB)...")
         
-        # Crea server locale
+        # Create local server
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind(('localhost', 0))
@@ -259,17 +259,17 @@ class NetworkBenchmark:
         def server_worker():
             """Worker server"""
             conn, addr = server_socket.accept()
-            data = b'X' * (1024 * 1024)  # 1MB di dati
+            data = b'X' * (1024 * 1024)  # 1MB of data
             for _ in range(test_size_mb):
                 conn.send(data)
             conn.close()
         
-        # Avvia server in thread separato
+        # Start server in separate thread
         server_thread = threading.Thread(target=server_worker)
         server_thread.start()
         
         # Test client
-        time.sleep(0.1)  # Aspetta che il server sia pronto
+        time.sleep(0.1)  # Wait for server to be ready
         
         try:
             start_time = time.time()
@@ -306,36 +306,36 @@ class NetworkBenchmark:
             server_thread.join()
     
     def run_complete_benchmark(self):
-        """Esegue benchmark completo della rete"""
+        """Run complete network benchmark"""
         print("=" * 60)
         print("           COMPLETE NETWORK BENCHMARK")
         print("=" * 60)
         
-        # Mostra informazioni sistema
+        # Display system information
         self._display_network_info()
         
         print("\n" + "=" * 60)
         print("           START NETWORK PERFORMANCE TEST")
         print("=" * 60)
         
-        # Esegui tutti i test
+        # Run all tests
         self.results['ping'] = self._ping_test("8.8.8.8", 5)
         self.results['download'] = self._download_speed_test()
         self.results['connection'] = self._connection_test("google.com", 80)
         self.results['dns'] = self._dns_resolution_test()
         self.results['bandwidth'] = self._bandwidth_test(5)
         
-        # Mostra risultati
+        # Display results
         self._display_results()
     
     def _display_network_info(self):
-        """Mostra informazioni rete"""
+        """Display network information"""
         print("\n🌐 NETWORK INFORMATION:")
         print("-" * 40)
         
-        # Mostra interfacce di rete
+        # Display network interfaces
         for interface in self.network_info.get('interfaces', []):
-            if interface['name'] != 'lo':  # Salta loopback
+            if interface['name'] != 'lo':  # Skip loopback
                 print(f"🔌 Interface: {interface['name']}")
                 for addr in interface['addresses']:
                     if addr['family'] == 'AddressFamily.AF_INET':
@@ -343,7 +343,7 @@ class NetworkBenchmark:
                     elif addr['family'] == 'AddressFamily.AF_INET6':
                         print(f"   📍 IPv6: {addr['address']}")
         
-        # Mostra statistiche
+        # Display network statistics
         stats = self.network_info.get('stats', {})
         if stats:
             print(f"\n📊 Network Statistics:")
@@ -356,11 +356,11 @@ class NetworkBenchmark:
                 print(f"   ⚠️  Errors Out: {stats.get('errout', 0)}")
     
     def _display_results(self):
-        """Mostra risultati benchmark"""
+        """Display benchmark results"""
         print("\n📊 NETWORK BENCHMARK RESULTS:")
         print("-" * 50)
         
-        # Risultati ping
+        # Ping results
         ping = self.results['ping']
         if ping['success']:
             print(f"🏓 Ping Test:")
@@ -372,7 +372,7 @@ class NetworkBenchmark:
         else:
             print(f"🏓 Ping Test: ❌ Failed - {ping.get('error', 'Unknown error')}")
         
-        # Risultati download
+        # Download results
         download = self.results['download']
         if download['success']:
             print(f"\n📥 Download Test:")
@@ -383,7 +383,7 @@ class NetworkBenchmark:
         else:
             print(f"\n📥 Download Test: ❌ Failed - {download.get('error', 'Unknown error')}")
         
-        # Risultati connessione
+        # Connection results
         connection = self.results['connection']
         if connection['success']:
             print(f"\n🔗 Connection Test:")
@@ -392,7 +392,7 @@ class NetworkBenchmark:
         else:
             print(f"\n🔗 Connection Test: ❌ Failed - {connection.get('error', 'Unknown error')}")
         
-        # Risultati DNS
+        # DNS results
         dns = self.results['dns']
         print(f"\n🌐 DNS Resolution Test:")
         print(f"   📊 Domains Tested: {dns['domains_tested']}")
@@ -403,7 +403,7 @@ class NetworkBenchmark:
             print(f"   ⏱️  Min Time: {dns['min_time_seconds']:.3f} seconds")
             print(f"   ⏱️  Max Time: {dns['max_time_seconds']:.3f} seconds")
         
-        # Risultati bandwidth
+        # Bandwidth results
         bandwidth = self.results['bandwidth']
         if bandwidth['success']:
             print(f"\n🚀 Local Bandwidth Test:")

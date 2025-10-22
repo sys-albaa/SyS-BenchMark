@@ -19,20 +19,89 @@ class CPUBenchmark:
     def _get_cpu_info(self):
         """gets detailed CPU information"""
         try:
+            # Get CPU info with better error handling
             cpu_freq = psutil.cpu_freq()
+            
+            # Get processor name safely - try different methods
+            processor_name = "Unknown"
+            try:
+                # Try to get CPU info from different sources
+                import subprocess
+                import platform
+                
+                # Method 1: Try platform module
+                processor_name = platform.processor()
+                if processor_name and processor_name != "":
+                    pass
+                else:
+                    # Method 2: Try WMI on Windows
+                    if platform.system() == "Windows":
+                        try:
+                            import wmi
+                            c = wmi.WMI()
+                            for processor in c.Win32_Processor():
+                                processor_name = processor.Name
+                                break
+                        except:
+                            # Method 3: Try subprocess
+                            try:
+                                result = subprocess.run(['wmic', 'cpu', 'get', 'name'], 
+                                                      capture_output=True, text=True, timeout=5)
+                                if result.returncode == 0:
+                                    lines = result.stdout.strip().split('\n')
+                                    if len(lines) > 1:
+                                        processor_name = lines[1].strip()
+                            except:
+                                processor_name = "Unknown Processor"
+                    else:
+                        # Method 4: Try /proc/cpuinfo on Linux
+                        try:
+                            with open('/proc/cpuinfo', 'r') as f:
+                                for line in f:
+                                    if line.startswith('model name'):
+                                        processor_name = line.split(':')[1].strip()
+                                        break
+                        except:
+                            processor_name = "Unknown Processor"
+            except:
+                processor_name = "Unknown Processor"
+            
+            # Get core counts safely
+            physical_cores = psutil.cpu_count(logical=False) or 1
+            logical_cores = psutil.cpu_count(logical=True) or 1
+            
+            # Get frequency info safely
+            freq_current = "N/A"
+            freq_min = "N/A"
+            freq_max = "N/A"
+            if cpu_freq:
+                freq_current = f"{cpu_freq.current:.1f}" if cpu_freq.current else "N/A"
+                freq_min = f"{cpu_freq.min:.1f}" if cpu_freq.min else "N/A"
+                freq_max = f"{cpu_freq.max:.1f}" if cpu_freq.max else "N/A"
+            
             return {
-                'processor': psutil.cpu_info().processor,
-                'physical_cores': psutil.cpu_count(logical=False),
-                'logical_cores': psutil.cpu_count(logical=True),
-                'frequency_current': cpu_freq.current if cpu_freq else "N/A",
-                'frequency_min': cpu_freq.min if cpu_freq else "N/A",
-                'frequency_max': cpu_freq.max if cpu_freq else "N/A",
+                'processor': processor_name,
+                'physical_cores': physical_cores,
+                'logical_cores': logical_cores,
+                'frequency_current': freq_current,
+                'frequency_min': freq_min,
+                'frequency_max': freq_max,
                 'platform': platform.platform(),
                 'architecture': platform.architecture()[0]
             }
         except Exception as e:
             print(f"Error getting CPU information: {e}")
-            return {}
+            # Return default values instead of empty dict
+            return {
+                'processor': 'Unknown',
+                'physical_cores': 1,
+                'logical_cores': 1,
+                'frequency_current': 'N/A',
+                'frequency_min': 'N/A',
+                'frequency_max': 'N/A',
+                'platform': platform.platform(),
+                'architecture': platform.architecture()[0]
+            }
 
     def _cpu_intensive_task(self, duration=1.0, complexity=1000000):
         """CPU intensive task"""
@@ -187,6 +256,11 @@ class CPUBenchmark:
         print(f"📈 Maximum frequency: {self.cpu_info.get('frequency_max', 'N/A')} MHz")
         print(f"📈 Platform: {self.cpu_info.get('platform', 'N/A')}")
         print(f"📈 Architecture: {self.cpu_info.get('architecture', 'N/A')}")
+        
+        # Debug information
+        print(f"\n🔍 Debug - CPU info keys: {list(self.cpu_info.keys())}")
+        print(f"🔍 Debug - psutil version: {psutil.__version__}")
+        print(f"🔍 Debug - Platform: {platform.system()}")
 
     def _display_results(self):
         """Display results"""
@@ -195,8 +269,22 @@ class CPUBenchmark:
         print(f"🔢 Single-core: {self.results['single_core']['duration']:.2f} seconds")
         print(f"🔢 Multi-threading: {self.results['multi_threading']['duration']:.2f} seconds")
         print(f"🔢 Multi-processing: {self.results['multi_processing']['duration']:.2f} seconds")
-        print(f"🔢 Matrix: {self.results['matrix']['duration']:.2f} seconds")
-        print(f"🔢 Memory bandwidth: {self.results['memory_bandwidth']['duration']:.2f} seconds")
+        
+        # Handle matrix results safely
+        if self.results['matrix']:
+            print(f"🔢 Matrix: {self.results['matrix']['duration']:.2f} seconds")
+        else:
+            print("🔢 Matrix: Skipped (NumPy not available)")
+        
+        # Handle memory bandwidth results safely
+        if 'memory_bandwidth' in self.results and self.results['memory_bandwidth']:
+            mb_result = self.results['memory_bandwidth']
+            if 'duration' in mb_result:
+                print(f"🔢 Memory bandwidth: {mb_result['duration']:.2f} seconds")
+            else:
+                print(f"🔢 Memory bandwidth: Write {mb_result.get('write_bandwidth_mbps', 0):.2f} MB/s, Read {mb_result.get('read_bandwidth_mbps', 0):.2f} MB/s")
+        else:
+            print("🔢 Memory bandwidth: Failed")
 
 if __name__ == "__main__":
     benchmark = CPUBenchmark()
