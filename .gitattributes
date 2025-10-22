@@ -1,2 +1,137 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# SyS-BenchMark .gitattributes
+# =============================
+
+# Python files
+*.py text eol=lf
+*.pyw text eol=lf
+
+# Ensure these files are always treated as text and use LF
+*.txt text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+
+# Documentation files
+*.md text eol=lf
+README.md text eol=lf
+LICENSE text eol=lf
+CHANGELOG.md text eol=lf
+
+# Configuration files
+*.ini text eol=lf
+*.cfg text eol=lf
+*.conf text eol=lf
+*.toml text eol=lf
+
+# Requirements and dependencies
+requirements*.txt text eol=lf
+setup.py text eol=lf
+pyproject.toml text eol=lf
+Pipfile text eol=lf
+Pipfile.lock text eol=lf
+
+# Git files
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Batch files (Windows)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Shell scripts (Unix/Linux/macOS)
+*.sh text eol=lf
+*.bash text eol=lf
+
+# PowerShell scripts
+*.ps1 text eol=crlf
+
+# Binary files (should not be tracked)
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.pyc binary
+*.pyo binary
+*.pyd binary
+*.egg binary
+*.whl binary
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.bmp binary
+*.ico binary
+*.svg text eol=lf
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+*.rar binary
+*.7z binary
+
+# IDE and editor files
+.vscode/ text eol=lf
+.idea/ text eol=lf
+*.swp text eol=lf
+*.swo text eol=lf
+*~ text eol=lf
+
+# OS generated files
+.DS_Store binary
+Thumbs.db binary
+desktop.ini binary
+
+# Python specific
+__pycache__/ text eol=lf
+*.py[cod] binary
+*.so binary
+.Python binary
+build/ text eol=lf
+develop-eggs/ text eol=lf
+dist/ text eol=lf
+downloads/ text eol=lf
+eggs/ text eol=lf
+.eggs/ text eol=lf
+lib/ text eol=lf
+lib64/ text eol=lf
+parts/ text eol=lf
+sdist/ text eol=lf
+var/ text eol=lf
+wheels/ text eol=lf
+*.egg-info/ text eol=lf
+.installed.cfg text eol=lf
+*.egg binary
+
+# Virtual environments
+venv/ text eol=lf
+env/ text eol=lf
+ENV/ text eol=lf
+.venv/ text eol=lf
+.env/ text eol=lf
+
+# Jupyter Notebook
+*.ipynb text eol=lf
+
+# Logs
+*.log text eol=lf
+logs/ text eol=lf
+
+# Temporary files
+*.tmp text eol=lf
+*.temp text eol=lf
+temp/ text eol=lf
+tmp/ text eol=lf
+
+# Benchmark specific
+benchmark/ text eol=lf
+*.csv text eol=lf
+*.tsv text eol=lf
