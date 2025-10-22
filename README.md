@@ -180,6 +180,5 @@ This project is distributed under the MIT License. See the `LICENSE` file for mo
 ## Support
 
 For support and questions:
-- 📧 Email: support@sysbenchmark.com
 - 🐛 Issues: [GitHub Issues](https://github.com/sys-albaa/SyS-BenchMark/issues)
 - 📖 Wiki: [Complete Documentation](https://github.com/sys-albaa/SyS-BenchMark/wiki)
